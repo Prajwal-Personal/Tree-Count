@@ -1,0 +1,94 @@
+.tree-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0 !important;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tree-card:hover .tree-card-image {
+  transform: scale(1.05);
+}
+
+.tree-card-image-wrap {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.tree-card.compact .tree-card-image-wrap {
+  height: 140px;
+}
+
+.tree-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.tree-card-overlay {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+}
+
+.tree-card-body {
+  padding: var(--space-md) var(--space-lg);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.tree-card-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tree-card-scientific {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.tree-card-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--space-xs);
+}
+
+.tree-card-tag {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.tree-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.tree-card-location {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+}
+
+.tree-card-family {
+  font-weight: 500;
+  color: var(--text-secondary);
+}

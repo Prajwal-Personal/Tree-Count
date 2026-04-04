@@ -1,0 +1,45 @@
+.map-picker {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.map-picker-container {
+  border-radius: var(--radius-lg);
+}
+
+.tree-marker {
+  font-size: 1.6rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.tree-marker:hover {
+  transform: scale(1.2);
+}
+
+.tree-marker-icon {
+  background: none !important;
+  border: none !important;
+}
+
+.leaflet-control-zoom a {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: var(--bg-glass-hover) !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(10, 15, 26, 0.8) !important;
+  color: var(--text-muted) !important;
+  font-size: 0.65rem !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--primary) !important;
+}

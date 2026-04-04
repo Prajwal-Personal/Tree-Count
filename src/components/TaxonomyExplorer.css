@@ -1,0 +1,70 @@
+.taxonomy-explorer {
+  padding: var(--space-lg);
+}
+
+.taxonomy-title {
+  font-size: 1rem;
+  margin-bottom: var(--space-lg);
+  color: var(--text-primary);
+}
+
+.taxonomy-tree {
+  display: flex;
+  flex-direction: column;
+}
+
+.taxonomy-node {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding-left: calc(var(--depth) * 16px);
+}
+
+.taxonomy-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 20px;
+  position: relative;
+}
+
+.taxonomy-line {
+  width: 2px;
+  height: 20px;
+  background: linear-gradient(to bottom, var(--primary), var(--accent));
+  opacity: 0.4;
+}
+
+.taxonomy-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary-glow);
+  flex-shrink: 0;
+}
+
+.taxonomy-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-xs) 0;
+  padding-bottom: var(--space-sm);
+  flex: 1;
+}
+
+.taxonomy-rank {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 100px;
+}
+
+.taxonomy-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-style: italic;
+}
