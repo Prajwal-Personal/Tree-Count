@@ -20,11 +20,55 @@ export default function Upload() {
   const [position, setPosition] = useState(null);
   const [locationName, setLocationName] = useState('');
   const [treeName, setTreeName] = useState('');
+  const [treeCount, setTreeCount] = useState(1);
+  const [treeCoordinates, setTreeCoordinates] = useState([]);
+  const [showTreeCoords, setShowTreeCoords] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [taxonomyData, setTaxonomyData] = useState(null);
   const [compressionInfo, setCompressionInfo] = useState(null);
   const [error, setError] = useState('');
+
+  const handleTreeCountChange = (count) => {
+    const n = Math.max(1, parseInt(count) || 1);
+    setTreeCount(n);
+    if (n <= 1) {
+      setShowTreeCoords(false);
+      setTreeCoordinates([]);
+    } else if (showTreeCoords) {
+      // Adjust the treeCoordinates array to match the new count
+      setTreeCoordinates(prev => {
+        if (prev.length < n) {
+          return [...prev, ...Array(n - prev.length).fill(null).map(() => ({ lat: '', lng: '' }))];
+        }
+        return prev.slice(0, n);
+      });
+    }
+  };
+
+  const handleToggleTreeCoords = () => {
+    if (!showTreeCoords) {
+      // Initialize coordinates array
+      const coords = Array(treeCount).fill(null).map((_, i) => {
+        if (i === 0 && position) {
+          return { lat: position.lat.toFixed(7), lng: position.lng.toFixed(7) };
+        }
+        return { lat: '', lng: '' };
+      });
+      setTreeCoordinates(coords);
+    } else {
+      setTreeCoordinates([]);
+    }
+    setShowTreeCoords(!showTreeCoords);
+  };
+
+  const updateTreeCoordinate = (index, field, value) => {
+    setTreeCoordinates(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
 
   const handleImageSelected = (file, preview) => {
     setImageFile(file);
@@ -38,7 +82,7 @@ export default function Upload() {
       const name = await reverseGeocode(pos.lat, pos.lng);
       setLocationName(name);
     } catch {
-      setLocationName(`${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)}`);
+      setLocationName(`${pos.lat.toFixed(7)}, ${pos.lng.toFixed(7)}`);
     }
   };
 
@@ -88,6 +132,14 @@ export default function Upload() {
   const handleSave = () => {
     if (!aiResult || !taxonomyData) return;
 
+    // Parse individual tree coordinates if provided
+    const parsedTreeCoords = showTreeCoords
+      ? treeCoordinates.map(c => ({
+          lat: parseFloat(c.lat),
+          lng: parseFloat(c.lng)
+        })).filter(c => !isNaN(c.lat) && !isNaN(c.lng))
+      : [];
+
     const tree = {
       id: generateId(),
       slug: generateSlug(aiResult.topResult.commonName || aiResult.topResult.scientificName),
@@ -97,6 +149,8 @@ export default function Upload() {
       status: aiResult.topResult.confidence >= 0.8 ? 'approved' : 'pending_review',
       image: imagePreview,
       coordinates: position,
+      treeCount: treeCount,
+      treeCoordinates: parsedTreeCoords.length > 0 ? parsedTreeCoords : undefined,
       location: locationName,
       taxonomy: taxonomyData,
       categories: classifyTree(taxonomyData),
@@ -154,13 +208,14 @@ export default function Upload() {
                     <input
                       type="number"
                       className="form-input"
-                      placeholder="e.g. 17.38500"
-                      step="0.00001"
+                      id="input-latitude"
+                      placeholder="e.g. 17.3850000"
+                      step="0.0000001"
                       min="-90"
                       max="90"
                       value={position ? position.lat : ''}
                       onChange={e => {
-                        const lat = parseFloat(parseFloat(e.target.value).toFixed(5));
+                        const lat = parseFloat(parseFloat(e.target.value).toFixed(7));
                         if (!isNaN(lat) && lat >= -90 && lat <= 90) {
                           const lng = position?.lng || 0;
                           handlePositionChange({ lat, lng });
@@ -174,13 +229,14 @@ export default function Upload() {
                     <input
                       type="number"
                       className="form-input"
-                      placeholder="e.g. 78.48670"
-                      step="0.00001"
+                      id="input-longitude"
+                      placeholder="e.g. 78.4867000"
+                      step="0.0000001"
                       min="-180"
                       max="180"
                       value={position ? position.lng : ''}
                       onChange={e => {
-                        const lng = parseFloat(parseFloat(e.target.value).toFixed(5));
+                        const lng = parseFloat(parseFloat(e.target.value).toFixed(7));
                         if (!isNaN(lng) && lng >= -180 && lng <= 180) {
                           const lat = position?.lat || 0;
                           handlePositionChange({ lat, lng });
@@ -193,11 +249,77 @@ export default function Upload() {
                 {locationName && (
                   <p className="upload-location-name">📍 {locationName}</p>
                 )}
+
+                {/* Tree Count */}
+                <div className="form-group" style={{ marginTop: 'var(--space-md)' }}>
+                  <label className="form-label">🌳 Tree Count</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    id="input-tree-count"
+                    placeholder="Number of trees"
+                    min="1"
+                    value={treeCount}
+                    onChange={e => handleTreeCountChange(e.target.value)}
+                    disabled={processing}
+                  />
+                </div>
+
+                {/* Optional per-tree coordinates */}
+                {treeCount > 1 && (
+                  <div className="tree-coords-section">
+                    <div className="tree-coords-toggle" onClick={handleToggleTreeCoords}>
+                      <span className="tree-coords-toggle-icon">{showTreeCoords ? '▼' : '▶'}</span>
+                      <span className="tree-coords-toggle-label">
+                        📌 Input individual tree coordinates <span className="tree-coords-optional">(optional)</span>
+                      </span>
+                    </div>
+
+                    {showTreeCoords && (
+                      <div className="tree-coords-list">
+                        {treeCoordinates.map((coord, i) => (
+                          <div key={i} className="tree-coord-row">
+                            <span className="tree-coord-index">🌳 #{i + 1}</span>
+                            <div className="tree-coord-inputs">
+                              <input
+                                type="number"
+                                className="form-input form-input-sm"
+                                placeholder="Latitude"
+                                step="0.0000001"
+                                min="-90"
+                                max="90"
+                                value={coord.lat}
+                                onChange={e => updateTreeCoordinate(i, 'lat', e.target.value)}
+                                disabled={processing}
+                              />
+                              <input
+                                type="number"
+                                className="form-input form-input-sm"
+                                placeholder="Longitude"
+                                step="0.0000001"
+                                min="-180"
+                                max="180"
+                                value={coord.lng}
+                                onChange={e => updateTreeCoordinate(i, 'lng', e.target.value)}
+                                disabled={processing}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                        <p className="tree-coords-hint">
+                          💡 Leave empty to use the main location for all trees
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="form-group" style={{ marginTop: 'var(--space-md)' }}>
                   <label className="form-label">Tree Name (optional)</label>
                   <input
                     type="text"
                     className="form-input"
+                    id="input-tree-name"
                     placeholder="e.g., Neem, Banyan..."
                     value={treeName}
                     onChange={e => setTreeName(e.target.value)}

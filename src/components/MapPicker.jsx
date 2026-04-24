@@ -31,7 +31,7 @@ function LocationMarker({ position, onPositionChange }) {
       <Popup>
         <div style={{ fontFamily: 'var(--font-body)', fontSize: '0.85rem' }}>
           <strong>Selected Location</strong><br />
-          {position.lat.toFixed(4)}°, {position.lng.toFixed(4)}°
+          {position.lat.toFixed(7)}°, {position.lng.toFixed(7)}°
         </div>
       </Popup>
     </Marker>
@@ -72,7 +72,7 @@ export default function MapPicker({ position, onPositionChange, height = '350px'
         {!interactive && position && (
           <Marker position={[position.lat, position.lng]} icon={treeIcon}>
             <Popup>
-              {position.lat.toFixed(4)}°, {position.lng.toFixed(4)}°
+              {position.lat.toFixed(7)}°, {position.lng.toFixed(7)}°
             </Popup>
           </Marker>
         )}
